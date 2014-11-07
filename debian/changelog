@@ -1,3 +1,9 @@
+combaine (0.6.5.8) unstable; urgency=low
+
+  * [JUGGLER] Change format of passing methods_list
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Fri, 07 Nov 2014 12:16:18 +0400
+
 combaine (0.6.5.7) unstable; urgency=low
 
   * Change monitor stat.
