@@ -14,6 +14,7 @@ var DEFAULT_FIELDS = []string{"75_prc", "90_prc", "93_prc", "94_prc", "95_prc", 
 var logger *cocaine.Logger
 
 type Task struct {
+	Id     string
 	Data   common.DataType
 	Config graphite.GraphiteCfg
 }
@@ -34,7 +35,7 @@ func Send(request *cocaine.Request, response *cocaine.Response) {
 		task.Config.Fields = DEFAULT_FIELDS
 	}
 
-	gCli, err := graphite.NewGraphiteClient(&task.Config)
+	gCli, err := graphite.NewGraphiteClient(&task.Config, task.Id)
 	if err != nil {
 		logger.Errf("Unexpected error %s", err)
 		response.ErrorMsg(-100, err.Error())
