@@ -131,7 +131,7 @@ def aggreagate(request, response):
         for v in mapping.itervalues():
             all_data.extend(v)
         res = yield app.enqueue("aggregate_group",
-                                msgpack.packb((cfg, all_data)))
+                                msgpack.packb((ID, cfg, all_data)))
         log.info("%s name %s ALL %s %d" % (ID, name, res, len(all_data)))
         result[name][METAHOST] = res
 
