@@ -64,6 +64,7 @@ func wrongCfgParametrError(param string) error {
 
 type AgaveSender struct {
 	// Handled items in data. Only this will be handled.
+	id            string
 	items         []string
 	graphName     string
 	graphTemplate string
@@ -82,7 +83,7 @@ func (as *AgaveSender) Send(data common.DataType) (err error) {
 			switch kind := rv.Kind(); kind {
 			case reflect.Slice, reflect.Array:
 				if len(as.fields) == 0 || len(as.fields) != rv.Len() {
-					as.logger.Errf("Unable to send a slice. Fields len %d, len of value %d", len(as.fields), rv.Len())
+					as.logger.Errf("%s Unable to send a slice. Fields len %d, len of value %d", as.id, len(as.fields), rv.Len())
 					continue
 				}
 				forJoin := []string{}
@@ -124,7 +125,7 @@ func (as *AgaveSender) handleOneItem(subgroup string, values string) {
 		as.step,
 	})
 	if err != nil {
-		as.logger.Errf("%s", err)
+		as.logger.Errf("%s %s", as.id, err)
 	} else {
 		as.sendPoint(url.String())
 	}
@@ -138,16 +139,16 @@ func (as *AgaveSender) sendPoint(url string) {
 		URL := fmt.Sprintf("http://%s%s", host, url)
 		req, _ := http.NewRequest("GET", URL, nil)
 		req.Header = DEFAULT_HEADERS
-		as.logger.Debugf("%s", req.URL)
+		as.logger.Debugf("%s %s", as.id, req.URL)
 		_ = client
 		if resp, err := client.Do(req); err != nil {
-			as.logger.Errf("Unable to create request %s", err)
+			as.logger.Errf("%s Unable to create request %s", as.id, err)
 		} else {
 			defer resp.Body.Close()
 			if body, err := ioutil.ReadAll(resp.Body); err != nil {
-				as.logger.Errf("%s %d %s", URL, resp.StatusCode, err)
+				as.logger.Errf("%s %s %d %s", as.id, URL, resp.StatusCode, err)
 			} else {
-				as.logger.Infof("%s %d %s", URL, resp.StatusCode, body)
+				as.logger.Infof("%s %s %d %s", as.id, URL, resp.StatusCode, body)
 			}
 		}
 	}
@@ -217,6 +218,9 @@ func NewAgaveSender(config map[string]interface{}) (as IAgaveSender, err error) 
 		}
 	}
 
+	var id string
+	id, _ = config["Id"].(string)
+
 	logger, err := lazyLoggerInitialization()
 	if err != nil {
 		return nil, err
@@ -225,6 +229,7 @@ func NewAgaveSender(config map[string]interface{}) (as IAgaveSender, err error) 
 	logger.Debugf("Step %v %v", step, config)
 	//fields
 	as = &AgaveSender{
+		id:            id,
 		items:         items,
 		graphName:     graphname,
 		graphTemplate: graphtemplate,
