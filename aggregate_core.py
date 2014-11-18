@@ -120,7 +120,7 @@ def aggreagate(request, response):
 
             mapping[subgroup] = subgroup_data
             res = yield app.enqueue("aggregate_group",
-                                    msgpack.packb((cfg, subgroup_data)))
+                                    msgpack.packb((ID, cfg, subgroup_data)))
             log.info("%s name %s subgroup %s result %s" % (ID,
                                                            name,
                                                            subgroup,
