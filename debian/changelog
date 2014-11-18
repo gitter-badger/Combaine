@@ -1,3 +1,9 @@
+combaine (0.6.5.11) unstable; urgency=low
+
+  * [Version bump] Trace id
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Tue, 18 Nov 2014 16:46:47 +0400
+
 combaine (0.6.5.10) unstable; urgency=low
 
   * [Parsing] Damn this closure
