@@ -91,10 +91,10 @@ def aggreagate(request, response):
     for name, cfg in aggcfg.get('data', {}).iteritems():
         mapping = {}
 
-        log.info("Send to %s %s" % (name, cfg['type']))
+        log.info("%s Send to %s %s" % (ID, name, cfg['type']))
         app = cache.get(cfg['type'])
         if app is None:
-            log.info("Skip %s" % cfg['type'])
+            log.info("%s Skip %s" % (ID, cfg['type']))
             continue
 
         result[name] = {}
@@ -111,7 +111,7 @@ def aggreagate(request, response):
                     subgroup_data.append(data)
                     if cfg.get("perHost"):
                         res = yield app.enqueue("aggregate_group",
-                                                msgpack.packb((cfg, [data])))
+                                                msgpack.packb((ID, cfg, [data])))
                         result[name][host] = res
                 except Exception as err:
                     if err.code != 2:
@@ -132,13 +132,13 @@ def aggreagate(request, response):
             all_data.extend(v)
         res = yield app.enqueue("aggregate_group",
                                 msgpack.packb((cfg, all_data)))
-        log.info("name %s ALL %s %d" % (name, res, len(all_data)))
+        log.info("%s name %s ALL %s %d" % (ID, name, res, len(all_data)))
         result[name][METAHOST] = res
 
     for name, item in aggcfg.get('senders', {}).iteritems():
         try:
             sender_type = item.get("type", "MISSING")
-            log.info("Send to %s" % sender_type)
+            log.info("%s Send to %s" % (ID, sender_type))
             s = Service(sender_type)
         except Exception as err:
             log.error(str(err))
@@ -146,7 +146,7 @@ def aggreagate(request, response):
             res = yield s.enqueue("send", msgpack.packb({"Config": item,
                                                          "Data": result,
                                                          "Id": ID}))
-            log.info("res for %s is %s" % (sender_type, res))
+            log.info("%s res for %s is %s" % (ID, sender_type, res))
 
     log.info("%s Result %s" % (ID, result))
     response.write("Done %s" % task["Id"])

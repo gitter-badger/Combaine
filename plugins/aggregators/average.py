@@ -44,7 +44,7 @@ def aggregate_host(request, response):
     pickled_res = yield dg.enqueue("query",
                                    msgpack.packb((token, q)))
     res = cPickle.loads(pickled_res)
-    Log.debug(str(res))
+    Log.debug("%s %s" % (taskId, str(res)))
     try:
         ret = float(res[0][0])   # SELECT COUNT(*)
         Log.info("%s Result from DG %s" % (taskId, ret))
@@ -60,10 +60,10 @@ def aggregate_host(request, response):
 def aggregate_group(request, response):
     raw = yield request.read()
     inc = msgpack.unpackb(raw)
-    cfg, data = inc
-    Log.info("Raw data is received %s" % str(inc))
+    tid, cfg, data = inc
+    Log.info("%s Raw data is received %s" % (tid, str(inc)))
     res = sum(map(msgpack.unpackb, data))
-    Log.info("Solved %s" % res)
+    Log.info("%s Solved %s" % (tid, res))
     response.write(res)
     response.close()
 

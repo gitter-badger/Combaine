@@ -104,11 +104,11 @@ def aggregate_host(request, response):
 def aggregate_group(request, response):
     raw = yield request.read()
     inc = msgpack.unpackb(raw)
-    cfg, data = inc
-    Log.debug("Unpack raw data successfully")
+    tid, cfg, data = inc
+    Log.debug("%s Unpack raw data successfully" % tid)
     raw_data = map(msgpack.unpackb, data)
     ret = merge(raw_data)
-    Log.debug("Data has been merged %s" % ret)
+    Log.debug("%s Data has been merged %s" % (tid, ret))
     qts = map(int,
               map(lambda x: float(ret["count"]) * x / 100,
                   cfg.get("values", [75, 90, 93, 94, 95, 96, 97, 98, 99])))
@@ -119,7 +119,7 @@ def aggregate_group(request, response):
         Log.error(str(err))
         response.error(100, repr(err))
     else:
-        Log.info("Result of group aggreagtion " + str(ret))
+        Log.info("%s Result of group aggreagtion %s" % (tid, str(ret)))
         response.write(ret)
         response.close()
 
