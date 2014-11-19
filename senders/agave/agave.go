@@ -91,6 +91,8 @@ func (as *AgaveSender) Send(data common.DataType) (err error) {
 					forJoin = append(forJoin, fmt.Sprintf("%s:%s", field, common.InterfaceToString(rv.Index(i).Interface())))
 				}
 				repacked[subgroup] = append(repacked[subgroup], strings.Join(forJoin, "+"))
+			case reflect.Map:
+				as.logger.Errf("%s unable to send map like values: %v", as.id, value)
 			default:
 				repacked[subgroup] = append(repacked[subgroup], fmt.Sprintf("%s:%s", aggname, common.InterfaceToString(value)))
 			}

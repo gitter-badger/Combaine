@@ -65,14 +65,14 @@ func (g *graphiteClient) Send(data common.DataType) (err error) {
 
 	for aggname, subgroupsAndValues := range data {
 		logger.Debugf("%s Handle aggregate named %s", g.id, aggname)
+	SUBGROUPS_AND_VALUES:
 		for subgroup, value := range subgroupsAndValues {
-
 			rv := reflect.ValueOf(value)
 			switch kind := rv.Kind(); kind {
 			case reflect.Slice, reflect.Array:
 				if len(g.fields) == 0 || len(g.fields) != rv.Len() {
 					logger.Errf("%s Unable to send a slice. Fields len %d, len of value %d", g.id, len(g.fields), rv.Len())
-					continue
+					continue SUBGROUPS_AND_VALUES
 				}
 				for i := 0; i < rv.Len(); i++ {
 					itemInterface := rv.Index(i).Interface()
@@ -81,6 +81,25 @@ func (g *graphiteClient) Send(data common.DataType) (err error) {
 						g.cluster,
 						formatSubgroup(subgroup),
 						fmt.Sprintf("%s.%s", aggname, g.fields[i]),
+						common.InterfaceToString(itemInterface),
+						time.Now().Unix())
+
+					logger.Infof("%s Send %s", g.id, toSend)
+					if _, err = fmt.Fprint(sock, toSend); err != nil {
+						logger.Errf("%s Sending error: %s", g.id, err)
+						return err
+					}
+				}
+			case reflect.Map:
+				v_keys := rv.MapKeys()
+				for _, key := range v_keys {
+					itemInterface := rv.MapIndex(key).Interface()
+
+					toSend := fmt.Sprintf(
+						onePointFormat,
+						g.cluster,
+						formatSubgroup(subgroup),
+						fmt.Sprintf("%s.%s", aggname, common.InterfaceToString(key.Interface())),
 						common.InterfaceToString(itemInterface),
 						time.Now().Unix())
 
