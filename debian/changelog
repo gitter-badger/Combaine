@@ -1,3 +1,9 @@
+combaine (0.6.5.15) unstable; urgency=low
+
+  * dict as result
+
+ -- Anton Tyurin <noxiouz@yandex-team.ru>  Wed, 19 Nov 2014 17:06:31 +0400
+
 combaine (0.6.5.14) unstable; urgency=low
 
   * Fix of bugfix
